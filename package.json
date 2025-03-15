@@ -1,0 +1,21 @@
+{
+  "name": "jd-orders-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "jd": "node index.js --years=2",
+    "jd5": "node index.js --years=5",
+    "pdd": "node pdd.js --years=2",
+    "pdd5": "node pdd.js --years=5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.1.0",
+    "dayjs": "^1.11.10",
+    "chalk": "^4.1.2"
+  }
+}
