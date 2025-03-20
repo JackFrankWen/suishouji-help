@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const dayjs = require('dayjs');
 const chalk = require('chalk');
+const { generateCSV, saveToCSV } = require('./src/pdd/utils');
 // Helper function for login waiting
 async function waitForLogin(page, timeout = 300000) {
     return new Promise((resolve, reject) => {
@@ -68,34 +69,18 @@ async function crawlJDOrders() {
     await browser.close();
 }
 
-function generateCSV(orders) {
-    const headers = ['订单号', '下单时间', '订单总价', '订单状态', '商品名称'];
-    const rows = [headers];
-
-    orders.forEach(order => {
-        rows.push([
-            order.orderId,
-            order.orderTime,
-            order.totalPrice,
-            order.status,
-            order.name
-        ]);
-    });
-
-    return rows.map(row => row.join(',')).join('\n');
-}
+// 引入工具函数
 
 // 新增函数：保存订单数据到CSV文件
 function saveOrdersToCSV(orders) {
-    const csvContent = generateCSV(orders);
-    const now = new Date();
-    const timestamp = now.toISOString().slice(0,10) + '-' + 
-                     now.getHours().toString().padStart(2,'0') + 
-                     now.getMinutes().toString().padStart(2,'0');
-    // 存到当前目录/csv目录下
-    const filePath = path.join(__dirname, 'csv', `jd-orders-${timestamp}.csv`);
-    fs.writeFileSync(filePath, csvContent);
-    return filePath;
+    // 使用新的抽象函数
+    const csvContent = generateCSV(orders, {
+        transforms: {
+            totalPrice: price => price.replace('¥', '')
+        }
+    });
+    
+    return saveToCSV(csvContent, 'jd');
 }
 
 // index 为0 最近三个月

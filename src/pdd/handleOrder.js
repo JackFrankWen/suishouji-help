@@ -5,16 +5,32 @@ const chalk = require('chalk');
  * @param {Page} page - Puppeteer页面实例
  * @returns {Promise<Array>} 订单数据数组
  */
+/**
+ * 获取订单数据
+ * @param {Page} page - Puppeteer页面实例
+ * @returns {Promise<Array>} 订单数据数组
+ * @description 
+ * 1. 等待订单列表加载完成
+ * 2. 延迟2秒确保数据加载
+ * 3. 滚动到页面底部加载所有订单
+ * 4. 提取并返回订单数据
+ * 5. 如果出错则返回空数组
+ */
 async function getOrderData(page) {
     try {
         // 等待订单列表加载
         await page.waitForSelector('.deal-list-status-new');
-        await new Promise(resolve => setTimeout(resolve, 2000)); // 延迟2秒
+        // 延迟2秒,确保数据完全加载
+        await new Promise(resolve => setTimeout(resolve, 2000)); 
+        // 打印加载完成提示
         console.log(chalk.blue('ℹ'), '订单列表加载完成');
 
+        // 滚动到底部加载所有订单
         await scrollToBottom(page);
+        // 提取并返回订单数据
         return await extractOrderData(page);
     } catch (error) {
+        // 出错时打印错误信息并返回空数组
         console.error(chalk.red('✗'), chalk.red('获取订单数据失败:'), error);
         return [];
     }
