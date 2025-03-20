@@ -15,6 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^24.1.0",
-    "xpath": "^0.0.34"
+    "xpath": "^0.0.34",
+     "dayjs": "^1.11.10",
+    "chalk": "^4.1.2"
   }
 }
