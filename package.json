@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "jd": "node index.js --years=2",
-    "jd5": "node index.js --years=5",
+    "jd": "node jd.js --years=2",
+    "jd5": "node jd.js --years=5",
     "pdd": "node pdd.js --years=2",
     "pdd5": "node pdd.js --years=5",
     "al": "node 1688login.js --years=2"

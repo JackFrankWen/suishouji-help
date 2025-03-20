@@ -103,63 +103,84 @@ async function login1688() {
         }
       
         // 开始爬页面数据
-        const data = await newActivePage.evaluate(() => {
-            // 获取元素，<order-item ></order-item>
-            const dom = document.querySelector("body > article > app-root").shadowRoot.querySelector("div > main > q-theme > order-list").shadowRoot
-            
+        let allData = [];
+        let currentPage = 1;
+        let hasNextPage = true;
 
-            const footer = dom.querySelectorAll('order-list-footer');
-            const list = dom.querySelectorAll('order-item');
-            const listData = [];
-            for(let item of list){
-                // const header = item.shadowRoot.querySelector('order-item-header');
-                // const content = item.shadowRoot.querySelector('order-item-content');
-                const orderId = item.shadowRoot.querySelector('.order-id-action').innerText
-                const orderTime = item.shadowRoot.querySelector('.order-time').innerText;
-                const orderPrice = item.shadowRoot.querySelector('order-item-total-price').shadowRoot.querySelector('.total-price').innerText;
-                const orderStatus = item.shadowRoot.querySelector('order-item-status').shadowRoot.querySelector('.order-status').innerText;
-                const entry = item.shadowRoot.querySelector('order-item-entry-product')
-                const des = entry.shadowRoot.querySelector('.product-name').innerText
+        while (hasNextPage) {
+            console.log(chalk.blue(`正在获取第 ${currentPage} 页数据...`));
+            
+            // 等待页面加载完成
+            await new Promise(r => setTimeout(r, 2000));
+            
+            // 获取当前页数据
+            const pageData = await newActivePage.evaluate(() => {
+                // 获取元素，<order-item ></order-item>
+                const dom = document.querySelector("body > article > app-root").shadowRoot.querySelector("div > main > q-theme > order-list").shadowRoot;
                 
-                // const orderStatus = header.querySelector('order-item-status').innerText;
-                // const orderId = content.querySelector('order-item-order-id').innerText;
-                // const orderPrice = content.querySelector('order-item-price').innerText;
-                // const orderTotal = content.querySelector('order-item-total').innerText;
-                //  ['orderId', 'orderTime', 'totalPrice', 'status', 'name']
-                listData.push({orderId, orderTime, totalPrice: orderPrice.replace('¥', ''), status: orderStatus, name: des});
+                // 判断是否有下一页
+                const footer = dom.querySelector('order-list-footer').shadowRoot;
+                const pagination = footer.querySelector('q-pagination').shadowRoot;
+                const ulPagination = pagination.querySelector('lu-pagination').shadowRoot;
+                const nextBtn = ulPagination.querySelector('.ui-page.ui-page-next');
+                const hasNext = !nextBtn.disabled;
+                
+                // 获取当前页数据
+                const list = dom.querySelectorAll('order-item');
+                const listData = [];
+                for (let item of list) {
+                    const orderId = item.shadowRoot.querySelector('.order-id-action').innerText;
+                    const orderTime = item.shadowRoot.querySelector('.order-time').innerText;
+                    const orderPrice = item.shadowRoot.querySelector('order-item-total-price').shadowRoot.querySelector('.total-price').innerText;
+                    const orderStatus = item.shadowRoot.querySelector('order-item-status').shadowRoot.querySelector('.order-status').innerText;
+                    const entry = item.shadowRoot.querySelector('order-item-entry-product');
+                    const des = entry.shadowRoot.querySelector('.product-name').innerText;
+                    
+                    listData.push({
+                        orderId, 
+                        orderTime, 
+                        totalPrice: orderPrice.replace('¥', ''), 
+                        status: orderStatus, 
+                        name: des
+                    });
+                }
+                
+                // 如果可以点击下一页，就点击
+                if (hasNext) {
+                    nextBtn.click();
+                }
+                
+                return {
+                    data: listData,
+                    hasNext: hasNext
+                };
+            });
+            
+            // 将当前页数据添加到总数据中
+            allData = [...allData, ...pageData.data];
+            
+            // 打印当前页数据
+            console.log(chalk.cyan(`第 ${currentPage} 页共 ${pageData.data.length} 条数据:`));
+            pageData.data.forEach((item, index) => {
+                console.log(chalk.white(`  ${index + 1}. ${item.name} - ${item.orderTime} - ¥${item.totalPrice} - ${item.status}`));
+            });
+            
+            // 判断是否有下一页
+            hasNextPage = pageData.hasNext;
+            if (hasNextPage) {
+                console.log(chalk.yellow(`准备加载第 ${currentPage + 1} 页...`));
+                currentPage++;
+            } else {
+                console.log(chalk.green(`所有 ${currentPage} 页数据加载完成!`));
             }
-            return listData;
-        });
-        const csvContent = generateCSV(data);
+        }
+        
+        console.log(chalk.green(`总共获取 ${allData.length} 条数据`));
+        
+        // 生成并保存CSV
+        const csvContent = generateCSV(allData);
         const filePath = saveToCSV(csvContent, 'alibaba1688');
         console.log(chalk.green('数据已保存到:'), filePath);
-        console.log(data, 'data');
-        
-        // 
-        // const url = await newActivePage.url();
-        // console.log(chalk.green('新页面tile',t,url));
-        // // 2. 等待用户在新页面完成登录
-        // console.log(chalk.yellow('请在浏览器中手动完成登录(包括验证码/滑块验证)...'));
-        // const newWindowTarget = await browser.waitForTarget(
-        //     target => {
-        //         if(target.url().includes('login')){
-        //             return true;
-        //         }
-        //         return false;
-        //     },
-        // );
-        // const newWindowTargetPage = await newWindowTarget.page();
-        // newWindowTargetPage.bringToFront();
-        // console.log(chalk.green('新页面选择...'));
-        // console.log(newWindowTargetPage);
-        // const newPage = await newPagePromise;
-        // await waitForLogin(newPage.page());
-
-    
-
-    
-      
-        
         
         // 这里可以添加提取订单数据的代码
         
@@ -171,7 +192,7 @@ async function login1688() {
     
     // 保持浏览器打开，让用户可以看到结果
     // 如果需要自动关闭，取消下面这行的注释
-    // await browser.close();
+    await browser.close();
 }
 
 // 运行程序
