@@ -8,7 +8,8 @@
     "jd": "node index.js --years=2",
     "jd5": "node index.js --years=5",
     "pdd": "node pdd.js --years=2",
-    "pdd5": "node pdd.js --years=5"
+    "pdd5": "node pdd.js --years=5",
+    "al": "node 1688login.js --years=2"
   },
   "keywords": [],
   "author": "",

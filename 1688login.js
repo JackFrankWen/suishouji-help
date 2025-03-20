@@ -126,7 +126,7 @@ async function login1688() {
                 // const orderPrice = content.querySelector('order-item-price').innerText;
                 // const orderTotal = content.querySelector('order-item-total').innerText;
                 //  ['orderId', 'orderTime', 'totalPrice', 'status', 'name']
-                listData.push({orderId, orderTime, totalPrice: orderPrice, status: orderStatus, name: des});
+                listData.push({orderId, orderTime, totalPrice: orderPrice.replace('¥', ''), status: orderStatus, name: des});
             }
             return listData;
         });
