@@ -9,7 +9,8 @@
     "jd5": "node jd.js --years=5",
     "pdd": "node pdd.js --years=2",
     "pdd5": "node pdd.js --years=5",
-    "al": "node 1688login.js --years=2"
+    "al": "node 1688login.js --years=2",
+    "dian": "node dianping.js"
   },
   "keywords": [],
   "author": "",
