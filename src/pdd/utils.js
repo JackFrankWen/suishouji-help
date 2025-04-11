@@ -14,8 +14,15 @@ function saveToCSV(csvContent, platform = 'orders') {
         const timestamp = now.toISOString().slice(0, 10) + '-' +
             now.getHours().toString().padStart(2, '0') +
             now.getMinutes().toString().padStart(2, '0');
+        
+        // 确保csv目录存在
+        const csvDir = path.join(process.cwd(), 'csv');
+        if (!fs.existsSync(csvDir)) {
+            fs.mkdirSync(csvDir, { recursive: true });
+        }
+        
         // 存到当前目录/csv目录下
-        const filePath = path.join(process.cwd(), 'csv', `${platform}-orders-${timestamp}.csv`);
+        const filePath = path.join(csvDir, `${platform}-orders-${timestamp}.csv`);
         fs.writeFileSync(filePath, csvContent);
         console.log(chalk.green('✓'), chalk.green(`文件已保存到: ${filePath}`));
         return filePath;
