@@ -80,11 +80,6 @@ async function crawlPDDOrders() {
             console.log('没有找到.footer-items元素 个人中心');
         }
 
-        // 等待页面跳转完成
-        await page.waitForNavigation({
-            timeout: 3000,//30秒
-            waitUntil: 'networkidle0' // 等待网络请求完成
-        });
 
         // 检查是否有取消按钮 如果有则点击
         try {
